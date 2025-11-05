@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LogOut, Plus, Search, Filter, Settings } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { LogOut, Plus, Search, Filter, Settings, ChevronsUpDown, Check } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -17,6 +18,7 @@ const BlotterList = () => {
   const [searchText, setSearchText] = useState('');
   const [caseTypeFilter, setCaseTypeFilter] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [caseTypeOpen, setCaseTypeOpen] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -127,19 +129,64 @@ const BlotterList = () => {
             Filters
           </Button>
           {showFilters && (
-            <Select value={caseTypeFilter} onValueChange={setCaseTypeFilter}>
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Case Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cases</SelectItem>
-                {getCaseTypes().map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <>
+              <Popover open={caseTypeOpen} onOpenChange={setCaseTypeOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={caseTypeOpen}
+                    className="flex-1 justify-between"
+                  >
+                    {caseTypeFilter === 'all' ? 'All Cases' : caseTypeFilter}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search case type..." />
+                    <CommandEmpty>No case type found.</CommandEmpty>
+                    <CommandList>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setCaseTypeFilter('all');
+                            setCaseTypeOpen(false);
+                          }}
+                        >
+                          <Check className={`mr-2 h-4 w-4 ${caseTypeFilter === 'all' ? 'opacity-100' : 'opacity-0'}`} />
+                          All Cases
+                        </CommandItem>
+                        {getCaseTypes().map((type) => (
+                          <CommandItem
+                            key={type}
+                            value={type}
+                            onSelect={() => {
+                              setCaseTypeFilter(type);
+                              setCaseTypeOpen(false);
+                            }}
+                          >
+                            <Check className={`mr-2 h-4 w-4 ${caseTypeFilter === type ? 'opacity-100' : 'opacity-0'}`} />
+                            {type}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchText('');
+                  setCaseTypeFilter('all');
+                }}
+              >
+                Reset filters
+              </Button>
+            </>
           )}
         </div>
         {(searchText || caseTypeFilter !== 'all') ? (
