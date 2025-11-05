@@ -142,6 +142,15 @@ const BlotterList = () => {
             </Select>
           )}
         </div>
+        {(searchText || caseTypeFilter !== 'all') ? (
+          <div className="text-xs text-muted-foreground">
+            Showing {filteredEntries.length} of {entries.length} {entries.length === 1 ? 'result' : 'results'}
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground">
+            {entries.length} total {entries.length === 1 ? 'entry' : 'entries'}
+          </div>
+        )}
       </div>
 
       {/* Entries List */}
