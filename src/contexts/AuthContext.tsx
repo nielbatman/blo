@@ -21,23 +21,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    let mounted = true;
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initial session fetch
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+    };
+    init();
+
+    // Auth state changes after initial load
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setSession(session);
+      setUser(session?.user ?? null);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -57,12 +63,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Logged out successfully');
-      navigate('/login');
+    try {
+      // Proactively clear local state so UI reacts immediately.
+      setUser(null);
+      setSession(null);
+      setLoading(true);
+
+      // Try global sign-out first (server).
+      const { error } = await supabase.auth.signOut();
+      // Always clear local persisted session to be safe.
+      await supabase.auth.signOut({ scope: 'local' });
+      if (error) {
+        const msg = String(error.message || '').toLowerCase();
+        if (!(msg.includes('session') && msg.includes('missing'))) {
+          toast.error(error.message);
+        } else {
+          toast.success('Logged out successfully');
+        }
+      } else {
+        toast.success('Logged out successfully');
+      }
+    } catch (e: any) {
+      // Do not block navigation on unexpected errors.
+    } finally {
+      // Ensure we land on login and cannot go "Back" into a protected page snapshot.
+      navigate('/login', { replace: true });
+      setLoading(false);
     }
   };
 

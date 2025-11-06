@@ -30,12 +30,13 @@ const BlotterList = () => {
   const [caseTypeFilter, setCaseTypeFilter] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [caseTypeOpen, setCaseTypeOpen] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, session } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!session) return;
     fetchEntries();
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     filterEntries();
