@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase, BlotterEntry } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LogOut, Plus, Search, Filter, Settings, ChevronsUpDown, Check } from 'lucide-react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+import { LogOut, Plus, Search, Filter, Settings, ChevronsUpDown, Check, BookMarked, BookPlus } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -81,11 +92,41 @@ const BlotterList = () => {
   }
 
   return (
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive tooltip="Blotter">
+                  <Link to="/">
+                    <BookMarked />
+                    <span>Blotter</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Settings">
+                  <Link to="/settings">
+                    <Settings />
+                    <span>Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
     <div className="flex min-h-screen flex-col bg-secondary">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-primary px-4 py-4 text-primary-foreground shadow-md">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">Blotter Entries</h1>
+          <h1 className="flex items-center gap-2 text-xl font-bold">
+            <SidebarTrigger className="text-primary-foreground" />
+            <BookMarked className="h-5 w-5" />
+            Blotter Entries
+          </h1>
           <div className="flex gap-2">
             <Button
               variant="ghost"
@@ -242,9 +283,11 @@ const BlotterList = () => {
         size="lg"
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
       >
-        <Plus className="h-6 w-6" />
+        <BookPlus className="h-6 w-6" />
       </Button>
     </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 
