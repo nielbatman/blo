@@ -48,27 +48,27 @@ const AddEntry = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-primary px-4 py-4 text-primary-foreground shadow-md">
+      <header className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-4 text-white shadow-md">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/')}
-            className="text-primary-foreground hover:bg-primary/80"
+            className="text-white hover:bg-white/20"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">Add New Entry</h1>
+          <h1 className="text-xl font-bold">Add Suspect Profile</h1>
         </div>
       </header>
 
       {/* Form */}
       <div className="p-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Entry Details</CardTitle>
+          <CardHeader className="border-b p-4">
+            <CardTitle className="text-lg font-semibold text-blue-800">Suspect Information</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -139,7 +139,11 @@ const AddEntry = () => {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+                  disabled={loading}
+                >
                   {loading ? 'Saving...' : 'Save Entry'}
                 </Button>
               </div>
